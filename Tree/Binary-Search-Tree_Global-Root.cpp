@@ -39,6 +39,7 @@ struct Node *create_node(int value){
     return new_node;
 }
 
+// [GAGAL]
 // void insert(struct Node *new_node){
 //     struct Node *current_node = root;
 //     for(;;){
@@ -79,8 +80,6 @@ struct Node *insert(struct Node *new_node, struct Node *current_node){
         return current_node;
     }
 }
-//insert rekursi
-
 
 void pre_order(struct Node *current_node){
     if(current_node == NULL){
@@ -165,6 +164,7 @@ struct Node *delete_node(struct Node *current_node, int target_value){
             return child;
         }
         else if(current_node->left_child != NULL && current_node->right_child != NULL){
+            //========== Teknik Predecessor ============
             // struct Node *penerus = predecessor(current_node);
 
             // //swap
@@ -174,6 +174,8 @@ struct Node *delete_node(struct Node *current_node, int target_value){
 
             // current_node->left_child = delete_node(current_node->left_child, target_value);
 
+
+            //========== Teknik Successor ============
             struct Node *penerus = successor(current_node);
 
             //swap
@@ -188,7 +190,6 @@ struct Node *delete_node(struct Node *current_node, int target_value){
 }
 
 int main(){
-    // int insert[12] = {5, 4, 2, 5, 4, 8, 9, 10, 7, 6, 1, 2};
     while(1 == 1){
         int choice = menu();
         switch(choice){
