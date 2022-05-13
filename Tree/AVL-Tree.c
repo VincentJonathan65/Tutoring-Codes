@@ -32,7 +32,7 @@ int get_height(struct Node *root){
     }
     else if(root->left == NULL || root->right == NULL){
         return (root->left != NULL? root->left->height : root->right->height) + 1;
-    }
+    } 
     else{
         return (root->left->height >= root->right->height? root->left->height : root->right->height) + 1;
     }
