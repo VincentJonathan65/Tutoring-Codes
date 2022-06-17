@@ -629,11 +629,12 @@ int main(){
 - Delete: All
 */
 
-/*Langkah bikin nestedTree:
+/*Langkah bikin Nested AVL Tree:
 1. Bikin template AVL utk Tree Dalam
-2. Ganti Nama
-3. Analisis
-4. Ngehubungin antara Tree Luar ama Dalam
+2. Copy dan Paste template AVL utk Tree Dalam utk digunakan duplikatnya sebagai template AVL utk Tree Luar
+3. Ganti nama function, node, dan variabel untuk Tree Luar (agar beda ama Tree Dalam dengan tujuan utk mempermudah dalam Debugging)
+4. Analisis function-function AVL utk Tree Luar agar jangan sampai ada kekeliruan karena copy paste
+5. Melakukan proses insert, delete, dsb. di int main()
 */
 
 /* Test Case:
