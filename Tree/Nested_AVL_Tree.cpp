@@ -9,12 +9,13 @@ struct Node{
 
 struct NodeLuar{
     int valueLuar;
-    struct NodeLuar *left, *right;
-    int height;
+    struct NodeLuar *leftLuar, *rightLuar;
+    int heightLuar;
+    
     struct Node *rootDalam;
 };
 
-///////////////////////////////////////////////////// Balancing Tree Dalam ///////////////////////////////////////////////////
+/////////////////////////////////////////////// BALANCING AVL DALAM //////////////////////////////////////////
 
 int getBalanceFactor(struct Node *root){
     int bf;
@@ -105,7 +106,7 @@ struct Node *balancing(struct Node *root){
     return root;
 }
 
-///////////////////////////////////////////////////// Manipulasi Tree Dalam ///////////////////////////////////////////////////
+////////////////////////////////////////////////////// MANIPULASI TREE DALAM ///////////////////////////////////////////////////
 
 struct Node *createNode(int value){
     struct Node *new_node = (struct Node *) malloc(sizeof(struct Node));
@@ -123,8 +124,12 @@ struct Node *insert_node(struct Node *root, struct Node *new_node){
         if(root->value < new_node->value){ //right child
             root->right = insert_node(root->right, new_node);
         }
-        else if(new_node->value <= root->value){ //left child (tree left descendants will more often inserted than right descendants)
+        else if(new_node->value < root->value){ //left child (tree left descendants will more often inserted than right descendants)
             root->left = insert_node(root->left, new_node);
+        }
+        else{
+            printf("Value diinsert sudah ada!"); getchar();
+            return root;
         }
     }
     return balancing(root);
@@ -158,7 +163,6 @@ struct Node *delete_node(struct Node *root, int target){
             if(root->left == NULL && root->right == NULL){
                 free(root);
                 root = NULL;
-                // return root; //problem 1 dari bst -> avl
             }
             else if(root->left != NULL){ //tree left descendants will more often deleted than right descendants
                 struct Node *predecessor = find_predecessor(root);
@@ -178,7 +182,6 @@ struct Node *delete_node(struct Node *root, int target){
     else{
         return balancing(root);
     }
-    // return balancing(root);
 }
 
 void preorder_print(struct Node *root){
@@ -221,293 +224,394 @@ void print_tree(struct Node *root){
     printf("Post-Order: "); postorder_print(root); puts("");
 }
 
-///////////////////////////////////////////////////// Balancing Tree Luar ///////////////////////////////////////////////////
+struct Node *search_nodeDalam(struct Node *rootDalam, int targetDalam){
+    if(rootDalam == NULL){
+        return NULL;
+    }
+    else{
+        if(rootDalam->value < targetDalam){ //ke kanan
+            return search_nodeDalam(rootDalam->right, targetDalam);
+        }
+        else if(rootDalam->value > targetDalam){ //ke kiri
+            return search_nodeDalam(rootDalam->left, targetDalam);
+        }
+        else if(rootDalam->value == targetDalam){
+            return rootDalam;
+        }
+    }
+}
 
-int getBalanceFactorLuar(struct NodeLuar *root){
+/////////////////////////////////////////////// BALANCING AVL LUAR //////////////////////////////////////////
+
+int getBalanceFactorLuar(struct NodeLuar *rootLuar){
     int bf;
-    if(root->left == NULL && root->right == NULL){
+    if(rootLuar->leftLuar == NULL && rootLuar->rightLuar == NULL){
         bf = 1;
     }
-    else if(root->left != NULL && root->right != NULL){
-        bf = root->right->height - root->left->height;
+    else if(rootLuar->leftLuar != NULL && rootLuar->rightLuar != NULL){
+        bf = rootLuar->rightLuar->heightLuar - rootLuar->leftLuar->heightLuar;
     }
-    else if(root->left != NULL && root->right == NULL){
+    else if(rootLuar->leftLuar != NULL && rootLuar->rightLuar == NULL){
         // bf = 0 - root->left->height;
-        bf = -root->left->height;
+        bf = -rootLuar->leftLuar->heightLuar;
     }
-    else if(root->left == NULL && root->right != NULL){
+    else if(rootLuar->leftLuar == NULL && rootLuar->rightLuar != NULL){
         // bf = root->right->height - 0;
-        bf = root->right->height;
+        bf = rootLuar->rightLuar->heightLuar;
     }
     return bf;
 }
 
-int getHeightLuar(struct NodeLuar *root){
-    int height;
-    if(root->left == NULL && root->right == NULL){
-        height = 1;
+int getHeightLuar(struct NodeLuar *rootLuar){
+    int heightLuar;
+    if(rootLuar->leftLuar == NULL && rootLuar->rightLuar == NULL){
+        heightLuar = 1;
     }
-    else if(root->left != NULL && root->right != NULL){
-        if(root->left->height > root->right->height){
-            height = root->left->height + 1;
+    else if(rootLuar->leftLuar != NULL && rootLuar->rightLuar != NULL){
+        if(rootLuar->leftLuar->heightLuar > rootLuar->rightLuar->heightLuar){
+            heightLuar = rootLuar->leftLuar->heightLuar + 1;
         }
         else{
-            height = root->right->height + 1;
+            heightLuar = rootLuar->rightLuar->heightLuar + 1;
         }
     }
-    else if(root->left == NULL && root->right != NULL){
-        height = root->right->height + 1;
+    else if(rootLuar->leftLuar == NULL && rootLuar->rightLuar != NULL){
+        heightLuar = rootLuar->rightLuar->heightLuar + 1;
     }
-    else if(root->left != NULL && root->right == NULL){
-        height = root->left->height + 1;
+    else if(rootLuar->leftLuar != NULL && rootLuar->rightLuar == NULL){
+        heightLuar = rootLuar->leftLuar->heightLuar + 1;
     }
-    return height;
+    return heightLuar;
 }
 
-struct NodeLuar *left_rotateLuar(struct NodeLuar *root){
-    struct NodeLuar *pivot = root->right;
-    root->right = pivot->left;
-    pivot->left = root;
-    root->height = getHeightLuar(root);
-    pivot->height = getHeightLuar(root);
+struct NodeLuar *left_rotateLuar(struct NodeLuar *rootLuar){
+    struct NodeLuar *pivot = rootLuar->rightLuar;
+    rootLuar->rightLuar = pivot->leftLuar;
+    pivot->leftLuar = rootLuar;
+    rootLuar->heightLuar = getHeightLuar(rootLuar);
+    pivot->heightLuar = getHeightLuar(rootLuar);
     return pivot;
 }
 
-struct NodeLuar *right_rotateLuar(struct NodeLuar *root){
-    struct NodeLuar *pivot = root->left;
-    root->left = pivot->right;
-    pivot->right = root;
-    root->height = getHeightLuar(root);
-    pivot->height = getHeightLuar(root);
+struct NodeLuar *right_rotateLuar(struct NodeLuar *rootLuar){
+    struct NodeLuar *pivot = rootLuar->leftLuar;
+    rootLuar->leftLuar = pivot->rightLuar;
+    pivot->rightLuar = rootLuar;
+    rootLuar->heightLuar = getHeightLuar(rootLuar);
+    pivot->heightLuar = getHeightLuar(rootLuar);
     return pivot;
 }
 
-struct NodeLuar *balancingLuar(struct NodeLuar *root){
-    int balanceFactor = getBalanceFactorLuar(root);
+struct NodeLuar *balancingLuar(struct NodeLuar *rootLuar){
+    int balanceFactor = getBalanceFactorLuar(rootLuar);
     if(balanceFactor <= 1 && balanceFactor >= -1){ //seimbang
-        root->height = getHeightLuar(root);
-        return root;
+        rootLuar->heightLuar = getHeightLuar(rootLuar);
+        return rootLuar;
     }
     else if(balanceFactor < -1){ //berat sebelah di kiri
-        int childBalanceFactor = getBalanceFactorLuar(root->left);
+        int childBalanceFactor = getBalanceFactorLuar(rootLuar->leftLuar);
         if(childBalanceFactor >= 0){ //lebih berat di kanan - double rotate (zig zag)
-            root->left = left_rotateLuar(root->left);
-            root = right_rotateLuar(root);
+            rootLuar->leftLuar = left_rotateLuar(rootLuar->leftLuar);
+            rootLuar = right_rotateLuar(rootLuar);
         }
         else if(childBalanceFactor < 0){ //lebih berat di kiri - single rotate
-            root = right_rotateLuar(root);
+            rootLuar = right_rotateLuar(rootLuar);
         }
     }
     else if(balanceFactor > 1){ //berat sebelah di kanan
-        int childBalanceFactor = getBalanceFactorLuar(root->right);
+        int childBalanceFactor = getBalanceFactorLuar(rootLuar->rightLuar);
         if(childBalanceFactor >= 0){ //berat dikanan - single rotate
-            root = left_rotateLuar(root);
+            rootLuar = left_rotateLuar(rootLuar);
         }
         else if(childBalanceFactor < 0){ //berat di kiri (zig-zag) - double rotate
-            root->right = right_rotateLuar(root->right);
-            root = left_rotateLuar(root);
+            rootLuar->rightLuar = right_rotateLuar(rootLuar->rightLuar);
+            rootLuar = left_rotateLuar(rootLuar);
         }
     }
-    root->height = getHeightLuar(root);
-    return root;
+    rootLuar->heightLuar = getHeightLuar(rootLuar);
+    return rootLuar;
 }
 
-///////////////////////////////////////////////////// Manipulasi Tree Luar ///////////////////////////////////////////////////
+////////////////////////////////////////////////////// MANIPULASI TREE LUAR ///////////////////////////////////////////////////
 
-/*PR
-balancing di insert dan delete
-*/
-
-struct NodeLuar *createNodeLuar(int valueLuar, int valueDalam){
-    struct NodeLuar *new_node = (struct NodeLuar *) malloc(sizeof(struct NodeLuar));
-    new_node->valueLuar = valueLuar;
-    new_node->left = new_node->right = NULL;
-    new_node->height = 1;
-    new_node->rootDalam = createNode(valueDalam);
-    return new_node;
+struct NodeLuar *createNodeLuar(int valueLuar){
+    struct NodeLuar *new_nodeLuar = (struct NodeLuar *) malloc(sizeof(struct NodeLuar));
+    new_nodeLuar->valueLuar = valueLuar;
+    new_nodeLuar->leftLuar = new_nodeLuar->rightLuar = NULL;
+    new_nodeLuar->heightLuar = 1;
+    new_nodeLuar->rootDalam = NULL;
+    return new_nodeLuar;
 }
 
-struct NodeLuar *insert_nodeLuar(struct NodeLuar *root, struct NodeLuar *new_node){
-    if(root == NULL){
-        root = new_node;
+struct NodeLuar *insert_nodeLuar(struct NodeLuar *rootLuar, struct NodeLuar *new_node){
+    if(rootLuar == NULL){
+        rootLuar = new_node;
     }
     else{
-        if(root->valueLuar < new_node->valueLuar){ //right child
-            root->right = insert_nodeLuar(root->right, new_node);
+        if(rootLuar->valueLuar < new_node->valueLuar){ //right child
+            rootLuar->rightLuar = insert_nodeLuar(rootLuar->rightLuar, new_node);
         }
-        else if(new_node->valueLuar <= root->valueLuar){ //left child (tree left descendants will more often inserted than right descendants)
-            root->left = insert_nodeLuar(root->left, new_node);
+        else if(new_node->valueLuar < rootLuar->valueLuar){ //left child (tree left descendants will more often inserted than right descendants)
+            rootLuar->leftLuar = insert_nodeLuar(rootLuar->leftLuar, new_node);
+        }
+        else{
+            return rootLuar;
         }
     }
-    return balancingLuar(root);
+    return balancingLuar(rootLuar);
 }
 
-struct NodeLuar *find_predecessorLuar(struct NodeLuar *root){
-    struct NodeLuar *predecessor = (root)->left;
-    while(predecessor->right != NULL){
-        predecessor = predecessor->right;
+struct NodeLuar *find_predecessorLuar(struct NodeLuar *rootLuar){
+    struct NodeLuar *predecessor = (rootLuar)->leftLuar;
+    while(predecessor->rightLuar != NULL){
+        predecessor = predecessor->rightLuar;
     }
     return predecessor;
 }
 
-struct NodeLuar *find_successorLuar(struct NodeLuar *root){
-    struct NodeLuar *successor = (root)->right;
-    while(successor->left != NULL){
-        successor = successor->left;
+struct NodeLuar *find_successorLuar(struct NodeLuar *rootLuar){
+    struct NodeLuar *successor = (rootLuar)->rightLuar;
+    while(successor->leftLuar != NULL){
+        successor = successor->leftLuar;
     }
     return successor;
 }
 
-struct NodeLuar *delete_nodeLuar(struct NodeLuar *root, int target){
-    if(root != NULL){
-        if(root->valueLuar < target){
-            root->right = delete_nodeLuar(root->right, target);
+struct NodeLuar *delete_nodeLuar(struct NodeLuar *rootLuar, int target){
+    if(rootLuar != NULL){
+        if(rootLuar->valueLuar < target){
+            rootLuar->rightLuar = delete_nodeLuar(rootLuar->rightLuar, target);
         }
-        else if(root->valueLuar > target){
-            root->left = delete_nodeLuar(root->left, target);
+        else if(rootLuar->valueLuar > target){
+            rootLuar->leftLuar = delete_nodeLuar(rootLuar->leftLuar, target);
         }
-        else if(target == root->valueLuar){ //target found
-            if(root->left == NULL && root->right == NULL){
-                delete_all_node(root->rootDalam);
-                free(root);
-                root = NULL;
-                // return root; //problem 1 dari bst -> avl
+        else if(target == rootLuar->valueLuar){ //target found
+            if(rootLuar->leftLuar == NULL && rootLuar->rightLuar == NULL){
+                rootLuar->rootDalam = delete_all_node(rootLuar->rootDalam);
+                free(rootLuar);
+                rootLuar = NULL;
             }
-            else if(root->left != NULL){ //tree left descendants will more often deleted than right descendants
-                struct NodeLuar *predecessor = find_predecessorLuar(root);
-                root->valueLuar = predecessor->valueLuar;
-                root->rootDalam = predecessor->rootDalam;
-                predecessor->rootDalam = NULL;
-                root->left = delete_nodeLuar(root->left, predecessor->valueLuar);
+            else if(rootLuar->leftLuar != NULL){ //tree left descendants will more often deleted than right descendants
+                rootLuar->rootDalam = delete_all_node(rootLuar->rootDalam);
+                struct NodeLuar *predecessorLuar = find_predecessorLuar(rootLuar);
+                rootLuar->valueLuar = predecessorLuar->valueLuar;
+                rootLuar->rootDalam = predecessorLuar->rootDalam;
+                predecessorLuar->rootDalam = NULL;
+                rootLuar->leftLuar = delete_nodeLuar(rootLuar->leftLuar, predecessorLuar->valueLuar);
             }
-            else if(root->right != NULL){
-                struct NodeLuar *successor = find_successorLuar(root);
-                root->valueLuar = successor->valueLuar;
-                root->rootDalam = successor->rootDalam;
-                successor->rootDalam = NULL;
-                root->right = delete_nodeLuar(root->right, successor->valueLuar);
+            else if(rootLuar->rightLuar != NULL){
+                rootLuar->rootDalam = delete_all_node(rootLuar->rootDalam);
+                struct NodeLuar *successorLuar = find_successorLuar(rootLuar);
+                rootLuar->valueLuar = successorLuar->valueLuar;
+                rootLuar->rootDalam = successorLuar->rootDalam;
+                successorLuar->rootDalam = NULL;
+                rootLuar->rightLuar = delete_nodeLuar(rootLuar->rightLuar, successorLuar->valueLuar);
             }
         }
     }
-    if(root == NULL){
-        return root;
+    if(rootLuar == NULL){
+        return rootLuar;
     }
     else{
-        return balancingLuar(root);
+        return balancingLuar(rootLuar);
     }
 }
 
-void preorder_printLuar(struct NodeLuar *root){
-    if(root != NULL){
-        printf("%d\n", root->valueLuar);
-        preorder_print(root->rootDalam);
-        preorder_printLuar(root->left);
-        preorder_printLuar(root->right);
+void preorder_printLuar(struct NodeLuar *rootLuar){
+    if(rootLuar != NULL){
+        printf("ID Luar: %d - %d\n", rootLuar->valueLuar, rootLuar->heightLuar);
+        preorder_print(rootLuar->rootDalam); puts("");
+        preorder_printLuar(rootLuar->leftLuar);
+        preorder_printLuar(rootLuar->rightLuar);
     }
 }
 
-void inorder_printLuar(struct NodeLuar *root){
-    if(root != NULL){
-        inorder_printLuar(root->left);
-        printf("%d\n", root->valueLuar);
-        inorder_print(root->rootDalam);
-        inorder_printLuar(root->right);
+void inorder_printLuar(struct NodeLuar *rootLuar){
+    if(rootLuar != NULL){
+        inorder_printLuar(rootLuar->leftLuar);
+        printf("ID Luar: %d\n", rootLuar->valueLuar);
+        inorder_print(rootLuar->rootDalam); puts("");
+        inorder_printLuar(rootLuar->rightLuar);
     }
 }
 
-void postorder_printLuar(struct NodeLuar *root){
-    if(root != NULL){
-        postorder_printLuar(root->left);
-        postorder_printLuar(root->right);
-        printf("%d\n", root->valueLuar);
-        postorder_print(root->rootDalam);
+void postorder_printLuar(struct NodeLuar *rootLuar){
+    if(rootLuar != NULL){
+        postorder_printLuar(rootLuar->leftLuar);
+        postorder_printLuar(rootLuar->rightLuar);
+        printf("ID Luar: %d\n", rootLuar->valueLuar);
+        postorder_print(rootLuar->rootDalam); puts("");
     }
 }
 
-struct NodeLuar *delete_all_nodeLuar(struct NodeLuar *root){
-    while(root != NULL){
-        root = delete_nodeLuar(root, root->valueLuar);
+struct NodeLuar *delete_all_nodeLuar(struct NodeLuar *rootLuar){
+    while(rootLuar != NULL){
+        rootLuar = delete_nodeLuar(rootLuar, rootLuar->valueLuar);
     }
-    return root;
+    return rootLuar;
 }
 
-void print_treeLuar(struct NodeLuar *root){
-    printf("Pre-Order:\n"); preorder_printLuar(root); puts("");
-    printf("In-Order:\n"); inorder_printLuar(root); puts("");
-    printf("Post-Order:\n"); postorder_printLuar(root); puts("");
+void print_treeLuar(struct NodeLuar *rootLuar){
+    printf("======= PRE-ORDER =========\n");
+    preorder_printLuar(rootLuar);
+    puts("");
+    
+    printf("======= IN-ORDER =========\n");
+    inorder_printLuar(rootLuar);
+    puts("");
+    
+    printf("======= POST-ORDER =========\n");
+    postorder_printLuar(rootLuar);
+    puts("");
 }
 
-struct NodeLuar *search_nodeLuar(struct NodeLuar *root, int target){
-    if(root == NULL){
+struct NodeLuar *search_nodeLuar(struct NodeLuar *rootLuar, int targetLuar){
+    if(rootLuar == NULL){
         return NULL;
     }
     else{
-        if(root->valueLuar > target){
-            return search_nodeLuar(root->left, target);
+        if(rootLuar->valueLuar < targetLuar){ //ke kanan
+            return search_nodeLuar(rootLuar->rightLuar, targetLuar);
         }
-        else if(root->valueLuar < target){
-            return search_nodeLuar(root->right, target);
+        else if(rootLuar->valueLuar > targetLuar){ //ke kiri
+            return search_nodeLuar(rootLuar->leftLuar, targetLuar);
         }
-        else{
-            return root;
+        else if(rootLuar->valueLuar == targetLuar){
+            return rootLuar;
         }
     }
 }
 
-///////////////////////////////////////////////////// Lainnya ///////////////////////////////////////////////////
+/////////////////////////////////////////////// LAINNYA //////////////////////////////////////////
 
 void menu(int *choice){
     system("CLS || clear");
-    puts("1. Insert Node Dalam");
-    puts("2. Delete Node Dalam");
-    puts("3. Delete All Nodes");
-    puts("4. Print Tree");
-    puts("5. Exit Program");
+    puts("1. Insert Node Luar");
+    puts("2. Insert Node Dalam");
+    puts("3. Delete Node Luar");
+    puts("4. Delete Node Dalam");
+    puts("5. Delete All Nodes Luar");
+    puts("6. Delete All Nodes Dalam");
+    puts("7. Print Tree Luar");
+    puts("8. Update Node Luar");
+    puts("9. Update Node Dalam");
+    puts("10. Exit Program");
     do{
         printf(">> "); scanf("%d", choice); getchar();
-    }while((*choice) < 1 || (*choice) > 5);
+    }while((*choice) < 1 || (*choice) > 10);
+}
+
+struct NodeLuar *func_insertNodeLuar(struct NodeLuar *rootLuar, int valueLuar){
+    //search dulu ada atau ga
+    struct NodeLuar *searchNode = search_nodeLuar(rootLuar, valueLuar);
+    if(searchNode == NULL){
+        struct NodeLuar *newNodeLuar = createNodeLuar(valueLuar);
+        rootLuar = insert_nodeLuar(rootLuar, newNodeLuar);
+    }
+    else{
+        printf("Value sudah ada");
+        getchar();
+    }
 }
 
 int main(){
     int choice, valueLuar, valueDalam;
     struct NodeLuar *rootLuar = NULL;
 
-    // int init_tree[6] = {5, 10, 15, 20, 25, 30};
-    // for(int i=0; i<6; i++){
-    //     root = insert_node(root, createNode(root, init_tree[i]));
-    // }
-
-    for(;;){
+    while(1 == 1){
         menu(&choice);
-        if(choice == 1){
-            print_treeLuar(rootLuar); puts("");
+        print_treeLuar(rootLuar); puts("");
+        if(choice == 1){ //Insert Node Luar
             printf("Insert Value Luar: "); scanf("%d", &valueLuar); getchar();
+            rootLuar = func_insertNodeLuar(rootLuar, valueLuar);
+        }
+        else if(choice == 2){ //Insert Node Dalam
+            printf("ID Luar: "); scanf("%d", &valueLuar); getchar();
+            struct NodeLuar *searchNode = search_nodeLuar(rootLuar, valueLuar);
+            if(searchNode == NULL){
+                rootLuar = func_insertNodeLuar(rootLuar, valueLuar);
+                searchNode = search_nodeLuar(rootLuar, valueLuar);
+            }
             printf("Insert Value Dalam: "); scanf("%d", &valueDalam); getchar();
-            struct NodeLuar *nodeLuar = search_nodeLuar(rootLuar, valueLuar);
-            if(nodeLuar == NULL){
-                nodeLuar = createNodeLuar(valueLuar, valueDalam);
-                rootLuar = insert_nodeLuar(rootLuar, nodeLuar);
+            struct Node *newNodeDalam = createNode(valueDalam);
+            searchNode->rootDalam = insert_node(searchNode->rootDalam, newNodeDalam);
+        }
+        else if(choice == 3){ //Delete Node Luar
+            printf("Delete Value Luar: "); scanf("%d", &valueLuar); getchar();
+            rootLuar = delete_nodeLuar(rootLuar, valueLuar);
+        }
+        else if(choice == 4){ //Delete Node Dalam
+            printf("ID Luar: "); scanf("%d", &valueLuar); getchar();
+            struct NodeLuar *searchNode = search_nodeLuar(rootLuar, valueLuar);
+            if(searchNode != NULL){
+                printf("Delete Value Dalam: "); scanf("%d", &valueDalam); getchar();
+                searchNode->rootDalam = delete_node(searchNode->rootDalam, valueDalam);
+                if(searchNode->rootDalam == NULL){
+                    rootLuar = delete_nodeLuar(rootLuar, searchNode->valueLuar);
+                }
             }
             else{
-                struct Node *new_nodeDalam = createNode(valueDalam);
-                nodeLuar->rootDalam = insert_node(nodeLuar->rootDalam, new_nodeDalam);
+                printf("Node dicari tidak ada!");
+                getchar();
             }
         }
-        else if(choice == 2){
-            print_treeLuar(rootLuar); puts("");
-            printf("Value Luar: "); scanf("%d", &valueLuar); getchar();
-            printf("Delete Value Dalam: "); scanf("%d", &valueDalam); getchar();
-            struct NodeLuar *nodeLuar = search_nodeLuar(rootLuar, valueLuar);
-            rootLuar->rootDalam = delete_node(rootLuar->rootDalam, valueDalam);
-        }
-        else if(choice == 3){
+        else if(choice == 5){ //Delete All Nodes Luar
             rootLuar = delete_all_nodeLuar(rootLuar);
         }
-        else if(choice == 4){
+        else if(choice == 6){ //Delete All Nodes Dalam
+            printf("ID Luar: "); scanf("%d", &valueLuar); getchar();
+            struct NodeLuar *searchNode = search_nodeLuar(rootLuar, valueLuar);
+            if(searchNode != NULL){
+                searchNode->rootDalam = delete_all_node(searchNode->rootDalam);
+            }
+            else{
+                printf("Node dicari tidak ada!");
+                getchar();
+            }
+        }
+        else if(choice == 7){ //Print Node Luar
             print_treeLuar(rootLuar);
             printf("Click Enter to Continue.."); getchar();
         }
-        else if(choice == 5){
+        else if(choice == 8){ //Update Luar
+            printf("ID Luar: "); scanf("%d", &valueLuar); getchar();
+            struct NodeLuar *searchNode = search_nodeLuar(rootLuar, valueLuar);
+            if(searchNode != NULL){
+                int valueBaru;
+                printf("ID Luar Baru: "); scanf("%d", &valueBaru); getchar();
+                struct NodeLuar *newNodeLuar = createNodeLuar(valueBaru);
+                newNodeLuar->rootDalam = searchNode->rootDalam;
+                searchNode->rootDalam = NULL;
+
+                rootLuar = delete_nodeLuar(rootLuar, searchNode->valueLuar);
+                rootLuar = insert_nodeLuar(rootLuar, newNodeLuar);
+            }
+            else{
+                printf("Node yang mau diupdate tidak ada!"); getchar();
+            }
+        }
+        else if(choice == 9){ //Update Dalam
+            printf("ID Luar: "); scanf("%d", &valueLuar); getchar();
+            struct NodeLuar *searchNodeLuar = search_nodeLuar(rootLuar, valueLuar);
+            if(searchNodeLuar != NULL){
+                printf("ID Dalam: "); scanf("%d", &valueDalam); getchar();
+                struct Node *searchNodeDalam = search_nodeDalam(searchNodeLuar->rootDalam, valueDalam);
+                if(search_nodeDalam != NULL){
+                    int valueBaru;
+                    printf("ID Dalam Baru: "); scanf("%d", &valueBaru); getchar();
+                    struct Node *newNodeDalam = createNode(valueBaru);
+                    searchNodeLuar->rootDalam = delete_node(searchNodeLuar->rootDalam, searchNodeDalam->value);
+                    searchNodeLuar->rootDalam = insert_node(searchNodeLuar->rootDalam, newNodeDalam);
+                }
+                else{
+                    printf("Node yang mau diupdate tidak ada!"); getchar();
+                }
+            }
+            else{
+                printf("Node yang mau diupdate tidak ada!"); getchar();
+            }
+        }
+        else if(choice == 10){ //Exit
             puts("Program Terminated!");
             return 0;
         }
@@ -523,4 +627,59 @@ int main(){
 - Delete: 18, 20
 - Insert: 5
 - Delete: All
+*/
+
+/*Langkah bikin nestedTree:
+1. Bikin template AVL utk Tree Dalam
+2. Ganti Nama
+3. Analisis
+4. Ngehubungin antara Tree Luar ama Dalam
+*/
+
+/* Test Case:
+1
+1
+1
+2
+1
+3
+1
+4
+1
+5
+1
+6
+2
+5
+5
+2
+5
+10
+2
+5
+15
+2
+5
+20
+2
+5
+25
+2
+5
+30
+2
+6
+11
+2
+6
+12
+2
+6
+13
+2
+6
+14
+2
+6
+15
 */
